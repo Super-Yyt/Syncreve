@@ -10,7 +10,7 @@ on:
   workflow_dispatch:  # 允许手动触发
 
 env:
-  FLUTTER_VERSION: '3.22.0'  # 指定Flutter版本
+  FLUTTER_VERSION: '3.19.0'  # 指定Flutter版本
 
 jobs:
   build:
