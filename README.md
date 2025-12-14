@@ -1,4 +1,4 @@
- # syncreve
+# syncreve
 
 A new Flutter project.
 
