@@ -99,8 +99,8 @@ jobs:
           # 定义不同的构建任务，每个任务对应一个平台
           - name: android
             os: ubuntu-latest
-          - name: android-aab
-            os: ubuntu-latest
+          # - name: android-aab
+          #  os: ubuntu-latest
           - name: web
             os: ubuntu-latest
           - name: linux
@@ -158,9 +158,9 @@ jobs:
          flutter build apk
          flutter build apk --split-per-abi
 
-      - name: Build Android App Bundle
-        if: matrix.name == 'android-aab'
-        run: flutter build appbundle
+      #- name: Build Android App Bundle
+      #  if: matrix.name == 'android-aab'
+      #  run: flutter build appbundle
 
       - name: Build Web
         if: matrix.name == 'web'
@@ -207,8 +207,8 @@ jobs:
             mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk ./app-release-armeabi-v7a-${{ steps.read_build_env.outputs.FULL_VERSION }}.apk
             mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ./app-release-arm64-v8a-${{ steps.read_build_env.outputs.FULL_VERSION }}.apk
             mv build/app/outputs/flutter-apk/app-x86_64-release.apk ./app-release-x86_64-${{ steps.read_build_env.outputs.FULL_VERSION }}.apk
-          elif [ "${{ matrix.name }}" = "android-aab" ]; then
-            mv build/app/outputs/bundle/release/app-release.aab ./app-release-${{ steps.read_build_env.outputs.FULL_VERSION }}.aab
+          #elif [ "${{ matrix.name }}" = "android-aab" ]; then
+          #  mv build/app/outputs/bundle/release/app-release.aab ./app-release-${{ steps.read_build_env.outputs.FULL_VERSION }}.aab
           elif [ "${{ matrix.name }}" = "web" ]; then
             zip -r web-release-${{ steps.read_build_env.outputs.FULL_VERSION }}.zip build/web
           elif [ "${{ matrix.name }}" = "linux" ]; then
