@@ -1,58 +1,61 @@
 name: Flutter Android Build
 
-# 触发条件：main分支推送或PR
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main, master ]
+  release:
+    types: [created]
+  workflow_dispatch:  # 允许手动触发
+
+env:
+  FLUTTER_VERSION: '3.22.0'  # 指定Flutter版本
 
 jobs:
-  android-build:
+  build:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # 安装Flutter SDK，指定稳定版
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '4.0.0'
-          channel: 'beta'
-
-      # 缓存依赖，提升构建速度
-      - name: Cache Flutter dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            android/.gradle
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
-
-      # 安装项目依赖
-      - name: Install dependencies
-        run: flutter pub get
-
-      # 代码检查
-      - name: Code analyze
-        run: flutter analyze
-
-      # 构建多架构APK（arm64-v8a、armeabi-v7a、x86_64）
-      - name: Build Android Release APK
-        run: flutter build apk --release --split-per-abi
-
-      # 构建AAB包（Google Play推荐格式）
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release
-
-      # 上传构建产物
-      - name: Upload APK/AAB Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: flutter-android-build
-          path: |
-            build/app/outputs/apk/release/*.apk
-            build/app/outputs/bundle/release/*.aab
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'  # 或者 'temurin'
+        java-version: '17'
+        
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        cache: true
+        cache-key: flutter-${{ env.FLUTTER_VERSION }}
+        
+    - name: Get Flutter dependencies
+      run: flutter pub get
+      
+    - name: Analyze code
+      run: flutter analyze
+      
+    - name: Run tests
+      run: flutter test
+      
+    - name: Build APK (Debug)
+      if: github.event_name != 'release'
+      run: flutter build apk --debug
+      
+    - name: Build APK (Release)
+      if: github.event_name == 'release'
+      run: |
+        flutter build apk --release \
+          --dart-define=APP_NAME="My App" \
+          --dart-define=APP_VERSION=${{ github.ref_name }}
+          
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-apk
+        path: build/app/outputs/flutter-apk/
+        retention-days: 7
