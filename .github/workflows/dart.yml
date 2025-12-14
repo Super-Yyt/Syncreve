@@ -19,7 +19,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '4.0.0'
-          channel: 'stable'
+          channel: 'beta'
 
       # 缓存依赖，提升构建速度
       - name: Cache Flutter dependencies
